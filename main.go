@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jpillora/backoff"
-	"github.com/kataras/iris/v12"
+	iris "github.com/kataras/iris/v12"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -22,7 +22,7 @@ func main() {
 
 	app := iris.New()
 	app.Get("/health", func(ctx iris.Context) {
-		_, err := ctx.JSON(iris.Map{
+		err := ctx.JSON(iris.Map{
 			"status": "ok",
 		})
 		if err != nil {
@@ -64,7 +64,7 @@ func loadUrls(service string) ([]string, error) {
 func generateLoad(c iris.Context) {
 
 	if !c.URLParamExists("HOST") || !c.URLParamExists("PROTO") || !c.URLParamExists("PORT") || !c.URLParamExists("DURATION") {
-		_, err := c.Problem(iris.NewProblem().Status(iris.StatusBadRequest).Title("Missing Parameters").Detail("Missing Parameters"))
+		err := c.Problem(iris.NewProblem().Status(iris.StatusBadRequest).Title("Missing Parameters").Detail("Missing Parameters"))
 		if err != nil {
 			zap.S().Errorf(err.Error())
 		}
@@ -81,7 +81,7 @@ func generateLoad(c iris.Context) {
 
 	urls, err := loadUrls(dataset)
 	if err != nil {
-		_, err2 := c.Problem(iris.NewProblem().Status(iris.StatusBadRequest).Title("Invalid service").Detail("Can't find url file: " + err.Error()))
+		err2 := c.Problem(iris.NewProblem().Status(iris.StatusBadRequest).Title("Invalid service").Detail("Can't find url file: " + err.Error()))
 		if err != nil {
 			zap.S().Errorf(err2.Error())
 		}
@@ -91,7 +91,7 @@ func generateLoad(c iris.Context) {
 	}
 	dur, err := time.ParseDuration(c.URLParam("DURATION"))
 	if err != nil {
-		_, err2 := c.Problem(iris.NewProblem().Status(iris.StatusBadRequest).Title("Invalid Duration").Detail("Can't parse duration: " + err.Error()))
+		err2 := c.Problem(iris.NewProblem().Status(iris.StatusBadRequest).Title("Invalid Duration").Detail("Can't parse duration: " + err.Error()))
 		if err2 != nil {
 			zap.S().Errorf(err2.Error())
 		}
@@ -114,7 +114,7 @@ func generateLoad(c iris.Context) {
 
 	}()
 
-	_, err = c.JSON(iris.Map{
+	err = c.JSON(iris.Map{
 		"status": "ok",
 	})
 	if err != nil {
