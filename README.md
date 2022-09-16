@@ -1,7 +1,7 @@
 # Smoke Test
 
 A simple service that will execute HTTP requests on demand for the purposes of pre-deployment testings. Think [hey](https://github.com/rakyll/hey) but 
-with more control over the request URLs.  
+with remote request URLs, slack and a few other tweaks.  
 
 This was developed to run during [Flagger](https://github.com/fluxcd/flagger) blue/green deployments updates.
 
