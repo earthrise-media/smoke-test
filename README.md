@@ -3,7 +3,7 @@
 A simple service that will execute HTTP requests on demand for the purposes of pre-deployment testings. Think [hey](https://github.com/rakyll/hey) but 
 with more control over the request URLs.  
 
-This was developed to run during [Flagger](https://github.com/fluxcd/flagger) blue/green deployments
+This was developed to run during [Flagger](https://github.com/fluxcd/flagger) blue/green deployments updates.
 
 ## Usage 
 
@@ -15,6 +15,44 @@ Params:
 - PROTO: http/https
 - DURATION: how long to run the tests: `1m` `90s` etc
 - SERVICE: the name of the service --> translated into the name of the CSV file in your repo
+
+Sample canary that uses this:
+
+```
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: api-canary
+  namespace: api
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-deployment
+  service:
+    port: 8124
+  #this is greatly reduced for dev
+  analysis:
+    interval: 10s
+    threshold: 3
+    maxWeight: 40
+    stepWeight: 10
+    metrics:
+      - name: request-success-rate
+        thresholdRange:
+          min: 99
+        interval: 1m
+      - name: request-duration
+        thresholdRange:
+          max: 500
+        interval: 30s
+    webhooks:
+      - name: load-test
+        type: rollout
+        url: http://load-generator.api.svc.cluster.local:8001/smoke-test?HOST=asset-api-deployment-canary.climatetrace.svc.cluster.local&PORT=8124&PROTO=http&DURATION=1m&SERVICE=asset-ap
+i-v0
+```
+
 
 ## Configuration
 The service uses the following env vars: 
