@@ -1,0 +1,55 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    container: golang
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: latest
+          working-directory: trace-asset-api
+
+      - name: Compile
+        run: go build -v .
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Prod version
+        if: github.ref == 'refs/heads/main'
+        run: |
+          version=$(cat version.txt)
+          echo "version=$version" >> $GITHUB_ENV
+
+      - name: Get Dev Version
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          version=$(cat ./trace-asset-api/version.txt)
+          timestamp=$(date +%s)
+          echo "version=$version-dev-$timestamp" >> $GITHUB_ENV
+
+      - name: Build, tag, and push the image
+        id: build-image
+        run: |
+          cd ./trace-asset-api/
+          docker build . -t ghcr.io/earthrise-media/smoke-test:${{ env.version }} --build-arg VERSION=$IMAGE_TAG --build-arg DATE="$(date --rfc-3339=seconds)" --build-arg REVISION="$GITHUB_SHA" .        
+          docker push ghcr.io/earthrise-media/smoke-test:${{ env.version }}
