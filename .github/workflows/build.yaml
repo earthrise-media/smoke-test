@@ -41,5 +41,5 @@ jobs:
     - name: Build, tag, and push the image
       id: build-image
       run: |
-        docker build -t ghcr.io/earthrise-media/plastics-api:${{ env.version }} --build-arg VERSION=$IMAGE_TAG --build-arg DATE="$(date --rfc-3339=seconds)" --build-arg REVISION="$GITHUB_SHA"  .        
-        docker push ghcr.io/earthrise-media/plastics-api:${{ env.version }}
+        docker build -t ghcr.io/earthrise-media/smoke-test:${{ env.version }} --build-arg VERSION=$IMAGE_TAG --build-arg DATE="$(date --rfc-3339=seconds)" --build-arg REVISION="$GITHUB_SHA"  .        
+        docker push ghcr.io/earthrise-media/smoke-test:${{ env.version }}
