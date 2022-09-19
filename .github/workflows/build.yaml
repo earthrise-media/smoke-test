@@ -42,13 +42,12 @@ jobs:
       - name: Get Dev Version
         if: github.ref == 'refs/heads/dev'
         run: |
-          version=$(cat ./trace-asset-api/version.txt)
+          version=$(cat ./version.txt)
           timestamp=$(date +%s)
           echo "version=$version-dev-$timestamp" >> $GITHUB_ENV
 
       - name: Build, tag, and push the image
         id: build-image
-        run: |
-          cd ./trace-asset-api/
+        run: |          
           docker build . -t ghcr.io/earthrise-media/smoke-test:${{ env.version }} --build-arg VERSION=$IMAGE_TAG --build-arg DATE="$(date --rfc-3339=seconds)" --build-arg REVISION="$GITHUB_SHA" .        
           docker push ghcr.io/earthrise-media/smoke-test:${{ env.version }}
