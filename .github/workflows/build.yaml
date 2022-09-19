@@ -6,8 +6,7 @@ on:
 jobs:
 
   build:
-    runs-on: ubuntu-latest
-    container: golang
+    runs-on: ubuntu-latest    
 
     steps:
       - name: Set up Go
