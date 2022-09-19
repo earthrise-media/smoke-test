@@ -1,5 +1,9 @@
 # Smoke Test
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/earthrise-media/smoke-test)](https://goreportcard.com/report/github.com/earthrise-media/smoke-test)
+
+[![Build](https://github.com/earthrise-media/smoke-test/actions/workflows/build.yaml/badge.svg?branch=main)](https://github.com/earthrise-media/smoke-test/actions/workflows/build.yaml)
+
 A simple service that will execute HTTP requests on demand for the purposes of pre-deployment testings. Think [hey](https://github.com/rakyll/hey) but 
 with remote request URLs, slack and a few other tweaks.  
 
