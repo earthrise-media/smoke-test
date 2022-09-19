@@ -16,7 +16,7 @@ ARG VERSION
 ARG REVISION
 
 COPY --from=build-env /go/bin/smoke-test /
-CMD ["/some-test"]
+CMD ["/smoke-test"]
 
 LABEL org.opencontainers.image.created=$DATE
 LABEL org.opencontainers.image.url="https://github.com/earthrise-media/smoke-test"
