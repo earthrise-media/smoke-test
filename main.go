@@ -198,6 +198,7 @@ func pollUrls(urls []string, target string, ctx context.Context) {
 
 func preflight() {
 
+	runMap = make(map[string]bool)
 	viper.SetDefault("PORT", 8001)
 	viper.SetDefault("LOG_LEVEL", "INFO")
 	viper.SetDefault("JSON_LOG", false)
