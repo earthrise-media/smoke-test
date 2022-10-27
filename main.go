@@ -13,8 +13,12 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"net/http"
+	"sync"
 	"time"
 )
+
+var runMap map[string]bool
+var mtx sync.Mutex
 
 func main() {
 
@@ -82,7 +86,7 @@ func generateLoad(c iris.Context) {
 	urls, err := loadUrls(dataset)
 	if err != nil {
 		err2 := c.Problem(iris.NewProblem().Status(iris.StatusBadRequest).Title("Invalid service").Detail("Can't find url file: " + err.Error()))
-		if err != nil {
+		if err2 != nil {
 			zap.S().Errorf(err2.Error())
 		}
 
@@ -99,6 +103,24 @@ func generateLoad(c iris.Context) {
 		return
 	}
 
+	//debounce
+	mtx.Lock()
+	defer mtx.Unlock()
+	ok, runnning := runMap[target];
+	if ok {
+		if runnning {
+			err = c.JSON(iris.Map{"status": fmt.Sprintf("already running against %s", target)})
+			if err != nil {
+				zap.S().Error(err.Error())
+			}
+			c.EndRequest()
+			return
+		} else {
+			runMap[target] = true
+		}
+	} else {
+		runMap[target] = true
+	}
 	go func() {
 		timer := time.NewTimer(dur)
 		ctx, cancel := context.WithCancel(context.Background())
@@ -110,8 +132,10 @@ func generateLoad(c iris.Context) {
 		}
 		//let it run until the timer expires
 		<-timer.C
+		mtx.Lock()
+		defer mtx.Unlock()
+		runMap[target] = false
 		cancel()
-
 	}()
 
 	err = c.JSON(iris.Map{
